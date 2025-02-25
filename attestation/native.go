@@ -1,4 +1,4 @@
-package main
+package attestation
 
 /*
 #cgo LDFLAGS: -L${SRCDIR}/../target/lib/ -lnsm
