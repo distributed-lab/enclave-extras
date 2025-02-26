@@ -1,7 +1,6 @@
 package attestation
 
 /*
-#cgo LDFLAGS: -L${NSMLIBDIR}/ -lnsm
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>

@@ -1,4 +1,4 @@
-# Enclave extras
+# Attestation
 Wrapper for working with AWS Nitro Enclave
 
 ## Features
@@ -7,9 +7,20 @@ Wrapper for working with AWS Nitro Enclave
 - Locking PCR (`LockPCR`)
 - Retrieving attestation document (`GetAttestationDoc`, `GetAttestationDocRaw`)
 
-## Variable environments
+## Environment variables
 - `NSMLIBDIR` - path to the `libnsm` library 
+```env
+# .env file
+NSMLIBDIR=/your/path/to/lib
+```
+---
+- `CGO_LDFLAGS` - set flags for cgo (Optinal. You can use `-ldflags`)
+```env
+# use it in .env file
+CGO_LDFLAGS="-L${NSMLIBDIR} -lnsm"
+```
+Or you can use flags `-ldflags "-L${NSMLIBDIR} -lnsm"` instead of `CGO_LDFLAGS`
 ```bash
-# code example
-export NSMLIBDIR=/usr/local/lib
+# use it instead of CGO_LDFLAGS variable
+go build -ldflags "-L${NSMLIBDIR} -lnsm" main.go
 ```
