@@ -22,5 +22,5 @@ CGO_LDFLAGS="-L${NSMLIBDIR} -lnsm"
 Or you can use flags `-ldflags "-L${NSMLIBDIR} -lnsm"` instead of `CGO_LDFLAGS`
 ```bash
 # use it instead of CGO_LDFLAGS variable
-go build -ldflags "-L${NSMLIBDIR} -lnsm" main.go
+go build -ldflags "-L${NSMLIBDIR} -lnsm" -o ./file_name
 ```
