@@ -5,7 +5,7 @@ Wrapper for working with AWS Nitro Enclave
 - Reading PCR registers (`DescribePCR`)
 - Modifying PCR (`ExtendPCR`)
 - Locking PCR (`LockPCR`)
-- Retrieving attestation document (`GetAttestationDoc`, `GetAttestationDocRaw`)
+- Retrieving attestation document (`GetAttestationDoc`)
 
 ## Environment variables
 - `NSMLIBDIR` - path to the `libnsm` library 
