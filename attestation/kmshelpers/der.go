@@ -1,4 +1,4 @@
-package attestation
+package kmshelpers
 
 import (
 	"bytes"

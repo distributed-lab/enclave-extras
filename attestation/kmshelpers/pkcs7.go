@@ -1,16 +1,12 @@
-package attestation
+package kmshelpers
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rsa"
-	"crypto/sha256"
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"fmt"
 )
 
-type ContentInfo struct {
+type PKCS7 struct {
 	ContentType asn1.ObjectIdentifier
 	Content     EnvelopedData `asn1:"explicit,tag:0"`
 }
@@ -34,56 +30,19 @@ type EncryptedContentInfo struct {
 	EncryptedContent           []byte `asn1:"explicit,tag:0"`
 }
 
-func ParseKMSPKCS7(raw []byte) (*ContentInfo, error) {
+func ParsePKCS7(raw []byte) (*PKCS7, error) {
 	raw, err := EnsureDER(raw)
 	if err != nil {
 		return nil, fmt.Errorf("failed to ensure that raw data in der format: %w", err)
 	}
 
-	var info ContentInfo
+	var info PKCS7
 	_, err = asn1.Unmarshal(raw, &info)
 	if err != nil {
 		panic(fmt.Errorf("failed to unmarshal ASN.1 to PKCS7: %w", err))
 	}
 
 	return &info, nil
-}
-
-func DecryptCiphertextForRicipient(raw []byte, privateKey *rsa.PrivateKey) (plaintext []byte, err error) {
-	pkcs7Data, err := ParseKMSPKCS7(raw)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse ciphertext for ricipient: %w", err)
-	}
-
-	if len(pkcs7Data.Content.RecipientInfos) == 0 {
-		return nil, fmt.Errorf("invalid recipient info")
-	}
-
-	encryptedAESKey := pkcs7Data.Content.RecipientInfos[0].EncryptedKey
-	iv := pkcs7Data.Content.EncryptedContentInfo.ContentEncryptionAlgorithm.Parameters.Bytes
-	ciphertext := pkcs7Data.Content.EncryptedContentInfo.EncryptedContent
-
-	aesKey, err := rsa.DecryptOAEP(sha256.New(), nil, privateKey, encryptedAESKey, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt aes key: %w", err)
-	}
-
-	aesCipher, err := aes.NewCipher(aesKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create aes cipher: %w", err)
-	}
-
-	cbcAESCipher := cipher.NewCBCDecrypter(aesCipher, iv)
-
-	plaintext = make([]byte, len(ciphertext))
-	cbcAESCipher.CryptBlocks(plaintext, ciphertext)
-
-	plaintext, err = pkcs7Strip(plaintext, aes.BlockSize)
-	if err != nil {
-		panic(err)
-	}
-
-	return plaintext, nil
 }
 
 func pkcs7Strip(data []byte, blockSize int) ([]byte, error) {
