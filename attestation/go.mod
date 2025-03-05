@@ -1,6 +1,6 @@
 module github.com/distributed-lab/enclave-extras/attestation
 
-go 1.23.4
+go 1.23.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.36.3
