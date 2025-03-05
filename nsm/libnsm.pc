@@ -1,0 +1,6 @@
+libdir=/usr/local/lib
+
+Name: libnsm
+Description: Nitro Secure Module API
+Version: 0.1.0
+Libs: -L${libdir} -lnsm

@@ -1,6 +1,7 @@
 package nsm
 
 /*
+#cgo pkg-config: libnsm
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
