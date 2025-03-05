@@ -1,0 +1,48 @@
+FROM debian:bookworm-slim AS socat-builder
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y \
+    wget make gcc
+RUN wget http://www.dest-unreach.org/socat/download/socat-1.7.4.4.tar.gz
+RUN echo "0f8f4b9d5c60b8c53d17b60d79ababc4a0f51b3bb6d2bd3ae8a6a4b9d68f195e socat-1.7.4.4.tar.gz" | sha256sum -c -
+RUN tar -xzf socat-1.7.4.4.tar.gz && \
+    cd socat-1.7.4.4 && \
+    ./configure && \
+    make && \
+    make install
+
+
+FROM rust:1.81.0-slim-bookworm AS nsmlib-builder
+WORKDIR /workspace
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y git
+RUN git clone https://github.com/aws/aws-nitro-enclaves-nsm-api.git && \
+    cd aws-nitro-enclaves-nsm-api && \
+    git checkout v0.4.0 && \
+    mkdir -p /workspace/target/lib && \
+    cargo build --release --manifest-path Cargo.toml -p nsm-lib && \
+    install target/release/libnsm.a /workspace/target/lib/libnsm.a
+
+
+FROM golang:1.23.1-bookworm AS example-builder
+WORKDIR /workspace
+COPY go.mod ./
+RUN go mod download
+COPY . ./
+COPY --from=nsmlib-builder /workspace/target/ target/
+RUN mkdir -p target/bin
+RUN go build -o target/bin/example .
+
+
+FROM debian:bookworm-slim
+COPY --from=socat-builder /usr/local/bin/socat /usr/local/bin/
+COPY --from=example-builder /workspace/target/bin/example /usr/local/bin/
+COPY runeif.sh /root
+RUN chmod +x /root/runeif.sh
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y \
+    iproute2 \
+    apt-get clean
+ENTRYPOINT [ "/root/runeif.sh" ]

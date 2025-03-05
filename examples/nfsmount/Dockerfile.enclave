@@ -1,0 +1,25 @@
+FROM debian:bookworm-slim AS socat-builder
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y \
+    wget make gcc
+RUN wget http://www.dest-unreach.org/socat/download/socat-1.7.4.4.tar.gz
+RUN echo "0f8f4b9d5c60b8c53d17b60d79ababc4a0f51b3bb6d2bd3ae8a6a4b9d68f195e socat-1.7.4.4.tar.gz" | sha256sum -c -
+RUN tar -xzf socat-1.7.4.4.tar.gz && \
+    cd socat-1.7.4.4 && \
+    ./configure && \
+    make && \
+    make install
+
+
+FROM debian:bookworm-slim
+COPY --from=socat-builder /usr/local/bin/socat /usr/local/bin/
+COPY runeif.sh /root
+RUN chmod +x /root/runeif.sh
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y \
+    iproute2 \
+    nfs-common \
+    apt-get clean
+ENTRYPOINT [ "/root/runeif.sh" ]
