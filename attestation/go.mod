@@ -14,5 +14,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.34 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.34 // indirect
 	github.com/aws/smithy-go v1.22.2 // indirect
+	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 )
