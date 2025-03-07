@@ -41,6 +41,15 @@ type ecPrivateKey struct {
 }
 
 // Wrapped x509.ParsePKIXPublicKey() with support secp256k1
+//
+// ParsePKIXPublicKey parses a public key in PKIX, ASN.1 DER form. The encoded
+// public key is a SubjectPublicKeyInfo structure (see RFC 5280, Section 4.1).
+//
+// It returns a *[rsa.PublicKey], *[dsa.PublicKey], *[ecdsa.PublicKey],
+// [ed25519.PublicKey] (not a pointer), or *[ecdh.PublicKey] (for X25519).
+// More types might be supported in the future.
+//
+// This kind of key is commonly encoded in PEM blocks of type "PUBLIC KEY".
 func ParseSubjectPublicKeyInfo(derBytes []byte) (any, error) {
 	var pubKeyInfo publicKeyInfo
 	if _, err := asn1.Unmarshal(derBytes, &pubKeyInfo); err != nil {
@@ -77,6 +86,14 @@ func ParseSubjectPublicKeyInfo(derBytes []byte) (any, error) {
 }
 
 // Wrapped x509.ParsePKCS8PrivateKey() with support secp256k1
+//
+// ParsePKCS8PrivateKey parses an unencrypted private key in PKCS #8, ASN.1 DER form.
+//
+// It returns a *[rsa.PrivateKey], an *[ecdsa.PrivateKey], an [ed25519.PrivateKey] (not
+// a pointer), or an *[ecdh.PrivateKey] (for X25519). More types might be supported
+// in the future.
+//
+// This kind of key is commonly encoded in PEM blocks of type "PRIVATE KEY".
 func ParsePKCS8PrivateKey(derBytes []byte) (key any, err error) {
 	var pkcs8PrivKey pkcs8
 	if _, err := asn1.Unmarshal(derBytes, &pkcs8PrivKey); err != nil {

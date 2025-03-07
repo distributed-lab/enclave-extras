@@ -11,7 +11,10 @@ var (
 	ErrBufferTooLarge   = fmt.Errorf("nsm: buffer exceeds maximum size")
 )
 
-func ExtendPCR(pcrIndex int, data []byte) ([]byte, error) {
+// Update value of not locked PCRx
+//
+// PCRx = SHA384(PCRx || data)
+func ExtendPCR(pcrIndex int, data []byte) (newPCRValue []byte, err error) {
 	nsmFd := nsmLibInit()
 	if nsmFd == -1 {
 		return nil, ErrNSMDeviceAbsent
@@ -29,7 +32,7 @@ func ExtendPCR(pcrIndex int, data []byte) ([]byte, error) {
 	return extendedPCR, nil
 }
 
-func DescribePCR(pcrIndex int) (bool, []byte, error) {
+func DescribePCR(pcrIndex int) (isLocked bool, data []byte, err error) {
 	nsmFd := nsmLibInit()
 	if nsmFd == -1 {
 		return false, nil, ErrNSMDeviceAbsent
@@ -47,6 +50,9 @@ func DescribePCR(pcrIndex int) (bool, []byte, error) {
 	return locked, pcrData, nil
 }
 
+// Lock PCRx. Locked PCRs cannot be extended
+//
+// PCRs 0-15 locked by default
 func LockPCR(pcrIndex int) error {
 	nsmFd := nsmLibInit()
 	if nsmFd == -1 {
@@ -65,6 +71,7 @@ func LockPCR(pcrIndex int) error {
 	return nil
 }
 
+// Lock range of PCRs: from 0 to pcrsRange
 func LockPCRs(pcrsRange int) error {
 	nsmFd := nsmLibInit()
 	if nsmFd == -1 {
@@ -83,6 +90,7 @@ func LockPCRs(pcrsRange int) error {
 	return nil
 }
 
+// Get Nitro Secure Module configuration
 func GetDescription() (*NSMDescription, error) {
 	nsmFd := nsmLibInit()
 	if nsmFd == -1 {
@@ -123,6 +131,7 @@ func GetAttestationDoc(userData []byte, nonce []byte, pubKey []byte) ([]byte, er
 	return attDoc, nil
 }
 
+// Get random bytes from NSM up to 256 byte per call
 func GetRandom(buf []byte) error {
 	nsmFd := nsmLibInit()
 	if nsmFd == -1 {

@@ -20,6 +20,11 @@ func NewFromConfig(cfg aws.Config, optFns ...func(*kms.Options)) *KMSEnclaveClie
 	return &KMSEnclaveClient{*kms.NewFromConfig(cfg, optFns...)}
 }
 
+// The function is intended only for use with attestation,
+// the output is no different from the usual use, i.e.
+// the developer does not need to decrypt CiphertextForRecipient
+// himself, but simply pass rsa.PrivateKey, the public key of which
+// was in the attestation document.
 func (k *KMSEnclaveClient) Decrypt(ctx context.Context, params *kms.DecryptInput, pk *rsa.PrivateKey, optFns ...func(*kms.Options)) (*kms.DecryptOutput, error) {
 	if params == nil || params.Recipient == nil {
 		return nil, fmt.Errorf("kms enclave client: recipient required")
@@ -33,7 +38,7 @@ func (k *KMSEnclaveClient) Decrypt(ctx context.Context, params *kms.DecryptInput
 		return nil, err
 	}
 
-	plaintext, err := DecryptCiphertextForRicipient(decryptOutput.CiphertextForRecipient, pk)
+	plaintext, err := DecryptCiphertextForRecipient(decryptOutput.CiphertextForRecipient, pk)
 	if err != nil {
 		return nil, err
 	}
@@ -42,6 +47,11 @@ func (k *KMSEnclaveClient) Decrypt(ctx context.Context, params *kms.DecryptInput
 	return decryptOutput, nil
 }
 
+// The function is intended only for use with attestation,
+// the output is no different from the usual use, i.e.
+// the developer does not need to decrypt CiphertextForRecipient
+// himself, but simply pass rsa.PrivateKey, the public key of which
+// was in the attestation document.
 func (k *KMSEnclaveClient) GenerateDataKey(ctx context.Context, params *kms.GenerateDataKeyInput, pk *rsa.PrivateKey, optFns ...func(*kms.Options)) (*kms.GenerateDataKeyOutput, error) {
 	if params == nil || params.Recipient == nil {
 		return nil, fmt.Errorf("kms enclave client: recipient required")
@@ -55,7 +65,7 @@ func (k *KMSEnclaveClient) GenerateDataKey(ctx context.Context, params *kms.Gene
 		return nil, err
 	}
 
-	plaintext, err := DecryptCiphertextForRicipient(generateDataKeyOutput.CiphertextForRecipient, pk)
+	plaintext, err := DecryptCiphertextForRecipient(generateDataKeyOutput.CiphertextForRecipient, pk)
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +74,16 @@ func (k *KMSEnclaveClient) GenerateDataKey(ctx context.Context, params *kms.Gene
 	return generateDataKeyOutput, nil
 }
 
+// The function is intended only for use with attestation,
+// the output is no different from the usual use, i.e.
+// the developer does not need to decrypt CiphertextForRecipient
+// himself, but simply pass rsa.PrivateKey, the public key of which
+// was in the attestation document.
+//
+// To parse the public and private keys for the secp256k1 curve,
+// you cannot use the usual functions from x509. Therefore,
+// there are overrides for some functions that allow you to parse secp256k1:
+// ParseSubjectPublicKeyInfo and ParsePKCS8PrivateKey
 func (k *KMSEnclaveClient) GenerateDataKeyPair(ctx context.Context, params *kms.GenerateDataKeyPairInput, pk *rsa.PrivateKey, optFns ...func(*kms.Options)) (*kms.GenerateDataKeyPairOutput, error) {
 	if params == nil || params.Recipient == nil {
 		return nil, fmt.Errorf("kms enclave client: recipient required")
@@ -77,7 +97,7 @@ func (k *KMSEnclaveClient) GenerateDataKeyPair(ctx context.Context, params *kms.
 		return nil, err
 	}
 
-	privateKeyPlaintext, err := DecryptCiphertextForRicipient(generateDataKeyPairOutput.CiphertextForRecipient, pk)
+	privateKeyPlaintext, err := DecryptCiphertextForRecipient(generateDataKeyPairOutput.CiphertextForRecipient, pk)
 	if err != nil {
 		return nil, err
 	}
@@ -86,6 +106,11 @@ func (k *KMSEnclaveClient) GenerateDataKeyPair(ctx context.Context, params *kms.
 	return generateDataKeyPairOutput, nil
 }
 
+// The function is intended only for use with attestation,
+// the output is no different from the usual use, i.e.
+// the developer does not need to decrypt CiphertextForRecipient
+// himself, but simply pass rsa.PrivateKey, the public key of which
+// was in the attestation document.
 func (k *KMSEnclaveClient) GenerateRandom(ctx context.Context, params *kms.GenerateRandomInput, pk *rsa.PrivateKey, optFns ...func(*kms.Options)) (*kms.GenerateRandomOutput, error) {
 	if params == nil || params.Recipient == nil {
 		return nil, fmt.Errorf("kms enclave client: recipient required")
@@ -99,7 +124,7 @@ func (k *KMSEnclaveClient) GenerateRandom(ctx context.Context, params *kms.Gener
 		return nil, err
 	}
 
-	plaintext, err := DecryptCiphertextForRicipient(generateRandomOutput.CiphertextForRecipient, pk)
+	plaintext, err := DecryptCiphertextForRecipient(generateRandomOutput.CiphertextForRecipient, pk)
 	if err != nil {
 		return nil, err
 	}
@@ -108,10 +133,10 @@ func (k *KMSEnclaveClient) GenerateRandom(ctx context.Context, params *kms.Gener
 	return generateRandomOutput, nil
 }
 
-func DecryptCiphertextForRicipient(raw []byte, privateKey *rsa.PrivateKey) (plaintext []byte, err error) {
+func DecryptCiphertextForRecipient(raw []byte, privateKey *rsa.PrivateKey) (plaintext []byte, err error) {
 	pkcs7Data, err := ParsePKCS7(raw)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse ciphertext for ricipient: %w", err)
+		return nil, fmt.Errorf("failed to parse ciphertext for recipient: %w", err)
 	}
 
 	if len(pkcs7Data.Content.RecipientInfos) == 0 {

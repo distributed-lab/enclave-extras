@@ -19,6 +19,8 @@ import (
 var AWSNitroEnclavesRootCertFingerprint = hexutil.MustDecode("0x641a0321a3e244efe456463195d606317ed7cdcc3c1756e09893f3c68f79bb5b")
 
 // NSMAttestationDoc represents the structure of the attestation document.
+//
+// Can be verified with 'Verify' method
 type NSMAttestationDoc struct {
 	ModuleID    string
 	Timestamp   time.Time
@@ -140,6 +142,7 @@ func ParseNSMAttestationDoc(raw []byte) (*NSMAttestationDoc, error) {
 	}, nil
 }
 
+// Signature and certificate chain verification
 func (ad *NSMAttestationDoc) Verify() error {
 	if err := ad.verifyCertChain(); err != nil {
 		return err
