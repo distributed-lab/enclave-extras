@@ -27,7 +27,7 @@ type KeyTransRecipientInfo struct {
 type EncryptedContentInfo struct {
 	ContentType                asn1.ObjectIdentifier
 	ContentEncryptionAlgorithm pkix.AlgorithmIdentifier
-	EncryptedContent           []byte `asn1:"explicit,tag:0"`
+	EncryptedContent           [][]byte `asn1:"set,tag:0"`
 }
 
 func ParsePKCS7(raw []byte) (*PKCS7, error) {

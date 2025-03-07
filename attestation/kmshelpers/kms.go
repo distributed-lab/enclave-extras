@@ -1,6 +1,7 @@
 package kmshelpers
 
 import (
+	"bytes"
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
@@ -145,7 +146,7 @@ func DecryptCiphertextForRecipient(raw []byte, privateKey *rsa.PrivateKey) (plai
 
 	encryptedAESKey := pkcs7Data.Content.RecipientInfos[0].EncryptedKey
 	iv := pkcs7Data.Content.EncryptedContentInfo.ContentEncryptionAlgorithm.Parameters.Bytes
-	ciphertext := pkcs7Data.Content.EncryptedContentInfo.EncryptedContent
+	ciphertext := bytes.Join(pkcs7Data.Content.EncryptedContentInfo.EncryptedContent, []byte{})
 
 	aesKey, err := rsa.DecryptOAEP(sha256.New(), nil, privateKey, encryptedAESKey, nil)
 	if err != nil {
