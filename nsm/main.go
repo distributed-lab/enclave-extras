@@ -11,6 +11,11 @@ var (
 	ErrBufferTooLarge   = fmt.Errorf("nsm: buffer exceeds maximum size")
 )
 
+// Return PCRx condition to be used when creating a KMS key
+func PCRxCondition(pcrIndex int) string {
+	return fmt.Sprintf("kms:RecipientAttestation:PCR%d", pcrIndex)
+}
+
 // Update value of not locked PCRx
 //
 // PCRx = SHA384(PCRx || data)
