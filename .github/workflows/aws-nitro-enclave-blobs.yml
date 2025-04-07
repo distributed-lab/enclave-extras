@@ -1,0 +1,29 @@
+name: Build blobs (kernel, nsm.ko) for AWS Nitro Enclave
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Clone AWS Nitro Enclave SDK Bootstrap
+        run: |
+          git clone https://github.com/aws/aws-nitro-enclaves-sdk-bootstrap.git
+
+      - name: Copy kernel configs
+        run: cp kernel/* aws-nitro-enclaves-sdk-bootstrap/kernel
+
+      - name: Log In to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Build and Push Docker image with blobs
+        run: |
+          docker build -f Dockerfile -t ghcr.io/${{ github.repository }}:aws-nitro-enclave-blobs-${{ github.sha }} .
+          docker push ghcr.io/${{ github.repository }}:aws-nitro-enclave-blobs-${{ github.sha }}
