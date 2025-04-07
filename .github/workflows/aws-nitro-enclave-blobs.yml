@@ -25,5 +25,6 @@ jobs:
 
       - name: Build and Push Docker image with blobs
         run: |
+          cd aws-nitro-enclaves-sdk-bootstrap
           docker build -f Dockerfile -t ghcr.io/${{ github.repository }}:aws-nitro-enclave-blobs-${{ github.sha }} .
           docker push ghcr.io/${{ github.repository }}:aws-nitro-enclave-blobs-${{ github.sha }}
