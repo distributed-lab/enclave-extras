@@ -6,17 +6,17 @@ import (
 	"crypto/ecdsa"
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	cbor "github.com/fxamacker/cbor/v2"
 )
 
 // https://docs.aws.amazon.com/enclaves/latest/user/verify-root.html
-var AWSNitroEnclavesRootCertFingerprint = hexutil.MustDecode("0x641a0321a3e244efe456463195d606317ed7cdcc3c1756e09893f3c68f79bb5b")
+var AWSNitroEnclavesRootCertFingerprint, _ = hex.DecodeString("641a0321a3e244efe456463195d606317ed7cdcc3c1756e09893f3c68f79bb5b")
 
 // NSMAttestationDoc represents the structure of the attestation document.
 //

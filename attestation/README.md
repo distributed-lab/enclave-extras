@@ -1,2 +1,1 @@
-# NSM Attestation helpers
-TODO
+# Attestation Document parsing and verification
