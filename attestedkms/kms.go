@@ -34,8 +34,10 @@ func (k *KMSEnclaveClient) Decrypt(ctx context.Context, params *kms.DecryptInput
 		return nil, fmt.Errorf("kms enclave client: invalid params")
 	}
 
-	params.Recipient.AttestationDocument = k.attestationDoc
-	params.Recipient.KeyEncryptionAlgorithm = kmstypes.KeyEncryptionMechanismRsaesOaepSha256
+	params.Recipient = &kmstypes.RecipientInfo{
+		AttestationDocument:    k.attestationDoc,
+		KeyEncryptionAlgorithm: kmstypes.KeyEncryptionMechanismRsaesOaepSha256,
+	}
 
 	decryptOutput, err := k.Client.Decrypt(ctx, params, optFns...)
 	if err != nil {
@@ -56,12 +58,14 @@ func (k *KMSEnclaveClient) Decrypt(ctx context.Context, params *kms.DecryptInput
 // the developer does not need to decrypt CiphertextForRecipient
 // himself, but simply pass rsa.PrivateKey, the public key of which
 // was in the attestation document.
-func (k *KMSEnclaveClient) GenerateDataKey(ctx context.Context, params *kms.GenerateDataKeyInput, pk *rsa.PrivateKey, optFns ...func(*kms.Options)) (*kms.GenerateDataKeyOutput, error) {
-	if params == nil || params.Recipient == nil {
-		return nil, fmt.Errorf("kms enclave client: recipient required")
+func (k *KMSEnclaveClient) GenerateDataKey(ctx context.Context, params *kms.GenerateDataKeyInput, optFns ...func(*kms.Options)) (*kms.GenerateDataKeyOutput, error) {
+	if params == nil {
+		return nil, fmt.Errorf("kms enclave client: invalid params")
 	}
-	if pk == nil {
-		return nil, fmt.Errorf("kms enclave client: rsa private key required")
+
+	params.Recipient = &kmstypes.RecipientInfo{
+		AttestationDocument:    k.attestationDoc,
+		KeyEncryptionAlgorithm: kmstypes.KeyEncryptionMechanismRsaesOaepSha256,
 	}
 
 	generateDataKeyOutput, err := k.Client.GenerateDataKey(ctx, params, optFns...)
@@ -69,7 +73,7 @@ func (k *KMSEnclaveClient) GenerateDataKey(ctx context.Context, params *kms.Gene
 		return nil, err
 	}
 
-	plaintext, err := decryptCiphertextForRecipient(generateDataKeyOutput.CiphertextForRecipient, pk)
+	plaintext, err := decryptCiphertextForRecipient(generateDataKeyOutput.CiphertextForRecipient, k.pk)
 	if err != nil {
 		return nil, err
 	}
@@ -88,12 +92,14 @@ func (k *KMSEnclaveClient) GenerateDataKey(ctx context.Context, params *kms.Gene
 // you cannot use the usual functions from x509. Therefore,
 // there are overrides for some functions that allow you to parse secp256k1:
 // ParseSubjectPublicKeyInfo and ParsePKCS8PrivateKey
-func (k *KMSEnclaveClient) GenerateDataKeyPair(ctx context.Context, params *kms.GenerateDataKeyPairInput, pk *rsa.PrivateKey, optFns ...func(*kms.Options)) (*kms.GenerateDataKeyPairOutput, error) {
-	if params == nil || params.Recipient == nil {
-		return nil, fmt.Errorf("kms enclave client: recipient required")
+func (k *KMSEnclaveClient) GenerateDataKeyPair(ctx context.Context, params *kms.GenerateDataKeyPairInput, optFns ...func(*kms.Options)) (*kms.GenerateDataKeyPairOutput, error) {
+	if params == nil {
+		return nil, fmt.Errorf("kms enclave client: invalid params")
 	}
-	if pk == nil {
-		return nil, fmt.Errorf("kms enclave client: rsa private key required")
+
+	params.Recipient = &kmstypes.RecipientInfo{
+		AttestationDocument:    k.attestationDoc,
+		KeyEncryptionAlgorithm: kmstypes.KeyEncryptionMechanismRsaesOaepSha256,
 	}
 
 	generateDataKeyPairOutput, err := k.Client.GenerateDataKeyPair(ctx, params, optFns...)
@@ -101,7 +107,7 @@ func (k *KMSEnclaveClient) GenerateDataKeyPair(ctx context.Context, params *kms.
 		return nil, err
 	}
 
-	privateKeyPlaintext, err := decryptCiphertextForRecipient(generateDataKeyPairOutput.CiphertextForRecipient, pk)
+	privateKeyPlaintext, err := decryptCiphertextForRecipient(generateDataKeyPairOutput.CiphertextForRecipient, k.pk)
 	if err != nil {
 		return nil, err
 	}
@@ -115,12 +121,14 @@ func (k *KMSEnclaveClient) GenerateDataKeyPair(ctx context.Context, params *kms.
 // the developer does not need to decrypt CiphertextForRecipient
 // himself, but simply pass rsa.PrivateKey, the public key of which
 // was in the attestation document.
-func (k *KMSEnclaveClient) GenerateRandom(ctx context.Context, params *kms.GenerateRandomInput, pk *rsa.PrivateKey, optFns ...func(*kms.Options)) (*kms.GenerateRandomOutput, error) {
-	if params == nil || params.Recipient == nil {
-		return nil, fmt.Errorf("kms enclave client: recipient required")
+func (k *KMSEnclaveClient) GenerateRandom(ctx context.Context, params *kms.GenerateRandomInput, optFns ...func(*kms.Options)) (*kms.GenerateRandomOutput, error) {
+	if params == nil {
+		return nil, fmt.Errorf("kms enclave client: invalid params")
 	}
-	if pk == nil {
-		return nil, fmt.Errorf("kms enclave client: rsa private key required")
+
+	params.Recipient = &kmstypes.RecipientInfo{
+		AttestationDocument:    k.attestationDoc,
+		KeyEncryptionAlgorithm: kmstypes.KeyEncryptionMechanismRsaesOaepSha256,
 	}
 
 	generateRandomOutput, err := k.Client.GenerateRandom(ctx, params, optFns...)
@@ -128,7 +136,7 @@ func (k *KMSEnclaveClient) GenerateRandom(ctx context.Context, params *kms.Gener
 		return nil, err
 	}
 
-	plaintext, err := decryptCiphertextForRecipient(generateRandomOutput.CiphertextForRecipient, pk)
+	plaintext, err := decryptCiphertextForRecipient(generateRandomOutput.CiphertextForRecipient, k.pk)
 	if err != nil {
 		return nil, err
 	}
