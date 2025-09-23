@@ -35,7 +35,7 @@ func Decrypt(opts DecryptOptions) error {
 	}
 	derEncodedSessionPublicKey, err := x509.MarshalPKIXPublicKey(&sessionPrivateKey.PublicKey)
 	if err != nil {
-		return fmt.Errorf("faield to marshal public key PKIX: %w", err)
+		return fmt.Errorf("failed to marshal public key PKIX: %w", err)
 	}
 	kmsAttestationDocRaw, err := nsm.GetAttestationDoc(nil, nil, derEncodedSessionPublicKey)
 	if err != nil {

@@ -69,13 +69,13 @@ func main() {
 
 	derEncodedPublicKey, err := x509.MarshalPKIXPublicKey(&rsaPrivateKey.PublicKey)
 	if err != nil {
-		panic(fmt.Errorf("faield to encode public key in DER format: %w", err))
+		panic(fmt.Errorf("failed to encode public key in DER format: %w", err))
 	}
 	fmt.Printf("DEREncodedPublicKey: %s\n", hexutil.Encode(derEncodedPublicKey))
 
 	attestationDoc, err := nsm.GetAttestationDoc(nil, nil, derEncodedPublicKey)
 	if err != nil {
-		panic(fmt.Errorf("faield to get attestatiokn doc: %w", err))
+		panic(fmt.Errorf("failed to get attestatiokn doc: %w", err))
 	}
 	fmt.Printf("AttestationDoc: %s\n", hexutil.Encode(attestationDoc))
 
