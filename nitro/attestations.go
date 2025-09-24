@@ -208,8 +208,25 @@ func GetAttestedAddress(publicKey *ecdsa.PublicKey, attestationsPath string) (co
 	addressPath := path.Join(attestationsPath, AddressFile)
 
 	// if attestation document exist just read address
-	_, err := os.ReadFile(addressPath)
+	addressAttestationDocRaw, err := os.ReadFile(addressPath)
 	if err == nil {
+		addressAttestationDoc, err := attestation.ParseNSMAttestationDoc(addressAttestationDocRaw)
+		if err != nil {
+			return address, fmt.Errorf("failed to parse %s: %w", addressPath, err)
+		}
+		if err = addressAttestationDoc.Verify(); err != nil {
+			return address, fmt.Errorf("%s have invalid signature: %w", addressPath, err)
+		}
+
+		_, pcr0Actual, err := nsm.DescribePCR(0)
+		if err != nil {
+			return address, fmt.Errorf("failed to get PCR0: %w", err)
+		}
+
+		if pcr0Stored, ok := addressAttestationDoc.PCRs[0]; !ok || !bytes.Equal(pcr0Stored, pcr0Actual) {
+			return address, fmt.Errorf("PCR0 from %s mismatch with actual PCR0 value", addressPath)
+		}
+
 		return address, nil
 	}
 
@@ -219,7 +236,7 @@ func GetAttestedAddress(publicKey *ecdsa.PublicKey, attestationsPath string) (co
 	}
 
 	// Save address
-	addressAttestationDocRaw, err := nsm.GetAttestationDoc(address[:], nil, nil)
+	addressAttestationDocRaw, err = nsm.GetAttestationDoc(address[:], nil, nil)
 	if err != nil {
 		return address, fmt.Errorf("failed to get attestation doc for %s: %w", addressPath, err)
 	}
