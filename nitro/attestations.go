@@ -33,7 +33,7 @@ const (
 )
 
 func GetAttestedKMSKeyID(cfg aws.Config, attestationsPath string) (string, error) {
-	kmsKeyIDPath := path.Join(attestationsPath, kmsKeyIDFile)
+	kmsKeyIDPath := path.Join(attestationsPath, KMSKeyIDFile)
 
 	_, pcr0Actual, err := nsm.DescribePCR(0)
 	if err != nil {
@@ -105,7 +105,7 @@ func GetAttestedPrivateKey(cfg aws.Config, kmsKeyID string, attestationsPath str
 		return nil, fmt.Errorf("failed to get kms enclave client: %w", err)
 	}
 
-	privateKeyPath := path.Join(attestationsPath, privateKeyFile)
+	privateKeyPath := path.Join(attestationsPath, PrivateKeyFile)
 	privateKeyAttestationDocRaw, err := os.ReadFile(privateKeyPath)
 	// if attestation document exist just read and decrypt private key
 	if err == nil {
@@ -175,7 +175,7 @@ func GetAttestedPrivateKey(cfg aws.Config, kmsKeyID string, attestationsPath str
 }
 
 func GetAttestedPublicKey(privateKey *ecdsa.PrivateKey, attestationsPath string) (*ecdsa.PublicKey, error) {
-	publicKeyPath := path.Join(attestationsPath, publicKeyFile)
+	publicKeyPath := path.Join(attestationsPath, PublicKeyFile)
 
 	// if attestation document exist just read public key
 	_, err := os.ReadFile(publicKeyPath)
@@ -205,7 +205,7 @@ func GetAttestedPublicKey(privateKey *ecdsa.PrivateKey, attestationsPath string)
 func GetAttestedAddress(publicKey *ecdsa.PublicKey, attestationsPath string) (common.Address, error) {
 	address := crypto.PubkeyToAddress(*publicKey)
 
-	addressPath := path.Join(attestationsPath, addressFile)
+	addressPath := path.Join(attestationsPath, AddressFile)
 
 	// if attestation document exist just read address
 	_, err := os.ReadFile(addressPath)
