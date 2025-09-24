@@ -20,7 +20,7 @@ type ReadAttestationDocumentOptions struct {
 func ReadAttestationDocument(opts ReadAttestationDocumentOptions) error {
 	attestationDocRaw, err := os.ReadFile(opts.Input)
 	if err != nil {
-		return fmt.Errorf("faield to read input file: %w", err)
+		return fmt.Errorf("failed to read input file: %w", err)
 	}
 	attestationDoc, err := attestation.ParseNSMAttestationDoc(attestationDocRaw)
 	if err != nil {
