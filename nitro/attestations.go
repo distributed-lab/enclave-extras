@@ -20,16 +20,16 @@ import (
 const (
 	// Attestation document with the KMS Key ID
 	// in UserData attestation doc field.
-	kmsKeyIDFile = "kms_key_id.coses1"
+	KMSKeyIDFile = "kms_key_id.coses1"
 	// Attestation document with the encrypted
 	// private key in UserData attestation doc field.
-	privateKeyFile = "private_key.coses1"
+	PrivateKeyFile = "private_key.coses1"
 	// Attestation document with the public key in
 	// UserData and PublicKey attestation doc fields.
-	publicKeyFile = "public_key.coses1"
+	PublicKeyFile = "public_key.coses1"
 	// Attestation document with the Ethereum
 	// address in UserData attestation doc field.
-	addressFile = "address.coses1"
+	AddressFile = "address.coses1"
 )
 
 func GetAttestedKMSKeyID(cfg aws.Config, attestationsPath string) (string, error) {
