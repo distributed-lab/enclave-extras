@@ -34,3 +34,8 @@ To interact with applications in Enclave, you should use:
 ```sh
 supervisorctl -s http://127.0.0.1:9001
 ```
+
+To stop enclave:
+```sh
+nitro-cli terminate-enclave --all
+```
