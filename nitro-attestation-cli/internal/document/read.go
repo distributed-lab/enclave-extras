@@ -51,15 +51,15 @@ func ReadAttestationDocument(opts ReadAttestationDocumentOptions) error {
 	}
 
 	if opts.UserData {
-		fmt.Printf("%s", attestationDoc.UserData)
+		fmt.Printf("%x\n", attestationDoc.UserData)
 	}
 
 	if opts.Nonce {
-		fmt.Printf("%s", attestationDoc.UserData)
+		fmt.Printf("%x\n", attestationDoc.Nonce)
 	}
 
 	if opts.PublicKey {
-		fmt.Printf("%s", attestationDoc.UserData)
+		fmt.Printf("%x\n", attestationDoc.PublicKey)
 	}
 	return nil
 }
