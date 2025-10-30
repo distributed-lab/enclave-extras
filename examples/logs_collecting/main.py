@@ -7,7 +7,7 @@ import time
 import signal
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 stop = False
 

@@ -10,32 +10,19 @@ git clone --branch example/logs_collecting https://github.com/distributed-lab/en
 cd enclave-extras/examples/logs_collecting
 ```
 
-Run socat, which will be used to manage applications in Enclave that are launched via supervisor:
+Build Dockerfile with Enclave Image File:
 ```sh
-socat TCP-LISTEN:9001,fork,reuseaddr,keepalive,bind=127.0.0.1 VSOCK-CONNECT:16:9001,keepalive &
+./build.docker.sh
 ```
 
-If an error occurs, check if another socat is running on this port or if another application is running:
+Start docker compose:
 ```sh
-ps aux | grep socat
+docker compose up
 ```
 
-Run socat, which will accept connections from log_forwarder and save logs to a file, for example logs:
-```sh
-socat VSOCK-LISTEN:8001,fork,reuseaddr STDOUT | cat > logs &
-```
-
-Run the example:
-```sh
-./build_and_run.sh
-```
+Now you can find logs in `./data` directory.
 
 To interact with applications in Enclave, you should use:
 ```sh
 supervisorctl -s http://127.0.0.1:9001
-```
-
-To stop enclave:
-```sh
-nitro-cli terminate-enclave --all
 ```

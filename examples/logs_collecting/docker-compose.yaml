@@ -1,0 +1,30 @@
+services:
+  rsyslog-collector:
+    image: rsyslog/rsyslog-collector
+    environment:
+      ENABLE_TCP: "on"
+    ports:
+      - "515:514/tcp"
+    volumes:
+      - ./data:/var/log
+
+  app:
+    image: app
+    privileged: true
+    ports:
+      - "9001:9001"
+    environment:
+      SYSLOG_SERVER: rsyslog-collector:514
+
+      SUPERVISOR_PORT: 9001
+
+      ENCLAVE_CID: 16
+      CPU_COUNT: 2
+      MEMORY_MIB: 1024
+      EXTRA_OPTIONS: --debug-mode
+    pre_stop:
+      - command: /opt/prestop-hook.sh
+        user: root
+        privileged: true
+    depends_on:
+      - rsyslog-collector
